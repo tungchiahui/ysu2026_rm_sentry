@@ -1,5 +1,5 @@
 # Local point-cloud maps; download and copy these files separately.
-/ysu2026_rm_sentry_nav/src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmuc_2024.pcd
-/ysu2026_rm_sentry_nav/src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmuc_2025.pcd
-/ysu2026_rm_sentry_nav/src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmul_2024.pcd
-/ysu2026_rm_sentry_nav/src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmul_2025.pcd
+/src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmuc_2024.pcd
+/src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmuc_2025.pcd
+/src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmul_2024.pcd
+/src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmul_2025.pcd
