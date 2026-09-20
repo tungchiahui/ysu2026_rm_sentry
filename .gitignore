@@ -1,4 +1,17 @@
-# Local point-cloud maps; download and copy these files separately.
+# ROS 2 / colcon
+/build/
+/install/
+/log/
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+
+# Local point-cloud maps
 /src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmuc_2024.pcd
 /src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmuc_2025.pcd
 /src/pb2025_sentry_nav/pb2025_nav_bringup/pcd/simulation/rmul_2024.pcd
