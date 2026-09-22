@@ -6,8 +6,11 @@
 <sdf version="1.7">
 	<!--include defination-->
 	<!--property defination-->
-	<!--rmua19_standard_robot model-->
-	<model name="rmua19_standard_robot">
+	<!-- 底盘距离水平地面的高度 -->
+	<!-- gimbal_yaw 相对于底盘的 z 轴安装偏移 -->
+	<!-- gimbal_pitch 相对于 gimbal_yaw 的高度差 -->
+	<!--ysu2026_sentry_robot model-->
+	<model name="ysu2026_sentry_robot">
 		<pose>0 0 0.15 0 0 0</pose>
 		<link name="base_footprint"/>
 		<joint name="base_to_chassis" type="fixed">
@@ -289,10 +292,44 @@
 				</surface>
 			</collision>
 		</link>
-		<!--gimbal yaw module-->
-		<joint name="gimbal_yaw_joint" type="revolute">
+		<joint name="gimbal_yaw_odom_joint" type="revolute">
 			<pose relative_to="chassis">0 0 0.1376 0 0 0</pose>
 			<parent>chassis</parent>
+			<child>gimbal_yaw_odom</child>
+			<axis>
+				<xyz>0 0 1</xyz>
+				<limit>
+					<effort>100</effort>
+					<velocity>50</velocity>
+					<lower>-1.79769e+308</lower>
+					<upper>1.79769e+308</upper>
+				</limit>
+			</axis>
+		</joint>
+		<link name="gimbal_yaw_odom">
+			<pose relative_to="gimbal_yaw_odom_joint">0 0 0 0 0 0</pose>
+		</link>
+		<joint name="gimbal_pitch_odom_joint" type="fixed">
+			<pose relative_to="gimbal_yaw_odom">0 0 0.16 0 0 0</pose>
+			<parent>gimbal_yaw_odom</parent>
+			<child>gimbal_pitch_odom</child>
+			<axis>
+				<xyz>0 1 0</xyz>
+				<limit>
+					<effort>100</effort>
+					<velocity>50</velocity>
+					<lower>-0.785</lower>
+					<upper>0.5652</upper>
+				</limit>
+			</axis>
+		</joint>
+		<link name="gimbal_pitch_odom">
+			<pose relative_to="gimbal_pitch_odom_joint">0 0 0 0 0 0</pose>
+		</link>
+		<!--gimbal yaw module-->
+		<joint name="gimbal_yaw_joint" type="revolute">
+			<pose relative_to="gimbal_pitch_odom">0 0 -0.16 0 0 0</pose>
+			<parent>gimbal_pitch_odom</parent>
 			<child>gimbal_yaw</child>
 			<axis>
 				<xyz>0 0 1</xyz>
@@ -336,7 +373,7 @@
 		</link>
 		<!--gimbal pitch module-->
 		<joint name="gimbal_pitch_joint" type="revolute">
-			<pose relative_to="gimbal_yaw">0 0.004 0.16 0 0 0</pose>
+			<pose relative_to="gimbal_yaw">0 0 0.16 0 0 0</pose>
 			<parent>gimbal_yaw</parent>
 			<child>gimbal_pitch</child>
 			<axis>

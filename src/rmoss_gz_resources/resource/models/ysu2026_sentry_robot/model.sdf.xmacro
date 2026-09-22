@@ -1,14 +1,10 @@
 <?xml version="1.0"?>
 <sdf version="1.7">
-
     <!--include defination-->
-    <xmacro_include uri="model://rplidar_a2/model.sdf.xmacro" />
-    <xmacro_include uri="model://mid360/model.sdf.xmacro" />
-    <xmacro_include uri="model://industrial_camera/model.sdf.xmacro" />
     <xmacro_include uri="model://ysu2026_sentry_robot/ysu2026_sentry_robot.def.xmacro" />
     <!--property defination-->
     <xmacro_define_value name="global_initial_color" value="none" />
-    <xmacro_define_value name="global_armor_sticker_type" value="num3" />
+    <xmacro_define_value name="global_armor_sticker_type" value="num1" />
     <!-- 底盘距离水平地面的高度 -->
     <xmacro_define_value name="chassis_height" value="0.076" />
     <!-- gimbal_yaw 相对于底盘的 z 轴安装偏移 -->
@@ -16,25 +12,11 @@
     <!-- gimbal_pitch 相对于 gimbal_yaw 的高度差 -->
     <xmacro_define_value name="gimbal_pitch_height" value="0.16" />
 
-    <!--simulation_robot model-->
-    <model name="simulation_robot">
-
+    <!--ysu2026_sentry_robot model-->
+    <model name="ysu2026_sentry_robot">
         <pose>0 0 0.15 0 0 0</pose>
         <xmacro_block name="ysu2026_sentry_robot" sticker_type="${global_armor_sticker_type}" chassis_height="${chassis_height}" gimbal_yaw_height="${gimbal_yaw_height}" gimbal_pitch_height="${gimbal_pitch_height}"/>
-        <!--rplidar a2-->
-        <xmacro_block name="rplidar_a2" prefix="front_" parent="chassis" pose="0.155 0 0.1 0 0 0" update_rate="10" samples="400" visualize="true"/>
-        <!--livox-->
-        <xmacro_block name="livox" prefix="front_" parent="chassis" pose="0.16 0.0 0.18 ${pi/6} 0.0 ${pi/2}" update_rate="20" samples="1875"/>
-        <!--industrial camera-->
-        <xmacro_block name="industrial_camera" prefix="front_" parent="gimbal_pitch" pose="0.1 0 0.045 0 0 0" update_rate="30" horizontal_fov="1" width="1920" height="1080"/>
-
         <!--plugins-->
-        <!-- https://github.com/gazebosim/gz-sim/blob/ign-gazebo6/src/systems -->
-
-        <!--plugin for joint state sensor-->
-        <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
-        </plugin>
-
         <!--plugin for light bar-->
         <plugin filename="LightBarController" name="ignition::gazebo::systems::LightBarController">
             <controller_name>color</controller_name>
@@ -46,7 +28,12 @@
             <link_visual>speed_monitor/light_bar_visual</link_visual>
             <initial_color>${global_initial_color}</initial_color>
         </plugin>
-
+        <!--plugin for joint state sensor-->
+        <plugin filename="ignition-gazebo-joint-state-publisher-system" 
+                name="ignition::gazebo::systems::JointStatePublisher">
+            <joint_name>gimbal_yaw_joint</joint_name>
+            <joint_name>gimbal_pitch_joint</joint_name>
+        </plugin>
         <!--plugin for chassis control-->
         <plugin filename="MecanumDrive2" name="ignition::gazebo::systems::MecanumDrive2">
             <chassis_link>chassis</chassis_link>
@@ -55,29 +42,28 @@
             <rear_left_joint>rear_left_wheel_joint</rear_left_joint>
             <rear_right_joint>rear_right_wheel_joint</rear_right_joint>
         </plugin>
-
         <!--plugin for gimbal control-->
-        <plugin filename="ignition-gazebo-joint-controller-system" name="ignition::gazebo::systems::JointController">
+        <plugin filename="ignition-gazebo-joint-position-controller-system"
+                name="ignition::gazebo::systems::JointPositionController">
             <joint_name>gimbal_yaw_joint</joint_name>
-            <use_force_commands>false</use_force_commands>
-            <p_gain>0.2</p_gain>
+            <p_gain>0.5</p_gain>
             <i_gain>0.01</i_gain>
+            <d_gain>0.1</d_gain>
+            <i_max>1</i_max>
+            <i_min>-1</i_min>
+            <cmd_max>30</cmd_max>
+            <cmd_min>-30</cmd_min>
         </plugin>
-
-        <plugin filename="ignition-gazebo-joint-controller-system" name="ignition::gazebo::systems::JointController">
+        <plugin filename="ignition-gazebo-joint-position-controller-system"
+                name="ignition::gazebo::systems::JointPositionController">
             <joint_name>gimbal_pitch_joint</joint_name>
-            <use_force_commands>false</use_force_commands>
-            <p_gain>1</p_gain>
-            <i_gain>0.01</i_gain>
-        </plugin>
-
-        <!--plugin for shooter-->
-        <plugin filename="ProjectileShooter" name="ignition::gazebo::systems::ProjectileShooter">
-            <shooter_link>speed_monitor</shooter_link>
-            <shooter_offset>0.15 0 0 0 0 0</shooter_offset>
-            <shooter_name>small_shooter</shooter_name>
-            <projectile_velocity>20</projectile_velocity>
-            <projectile_uri>model://rm_projectile_17mm</projectile_uri>
+            <p_gain>0.8</p_gain>
+            <i_gain>0.05</i_gain>
+            <d_gain>0.2</d_gain>
+            <i_max>10</i_max>
+            <i_min>-10</i_min>
+            <cmd_max>50</cmd_max>
+            <cmd_min>-50</cmd_min>
         </plugin>
     </model>
 </sdf>
