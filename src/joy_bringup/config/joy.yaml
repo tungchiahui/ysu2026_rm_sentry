@@ -1,0 +1,5 @@
+joy_node:
+  ros__parameters:
+    dev: /dev/input/js1
+    autorepeat_rate: 50.0
+    coalesce_interval: 0.01
