@@ -3,6 +3,8 @@
 #include <asio.hpp>
 #include <bit>
 #include <cstdint>
+#include <geometry_msgs/msg/detail/twist__struct.hpp>
+#include <rclcpp/subscription_base.hpp>
 #include <span>
 #include <system_error>
 #include <cstddef>
@@ -10,6 +12,9 @@
 #include <deque>
 #include <vector>
 #include "wire_protocol/protocol.hpp"
+#include "geometry_msgs/msg/twist.hpp"
+
+
 
 using namespace std::chrono_literals;
 
@@ -50,6 +55,8 @@ class Serial_Node: public rclcpp::Node
       //==================================================
       // 创建两个定时器模拟两个 topic
       //==================================================
+
+      cmd_vel_sub1_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&Serial_Node::cmd_vel_sub_callback,this,std::placeholders::_1));
 
       //模拟/cmd_vel这种高频消息
       timer1_ = this->create_wall_timer(10ms,std::bind(&Serial_Node::timer1_callback,this));
@@ -113,21 +120,17 @@ class Serial_Node: public rclcpp::Node
     //======================================================
     // 主线程ROS线程
     //======================================================
+    void cmd_vel_sub_callback(const geometry_msgs::msg::Twist &msg)
+    {
+      cmd_vel_field.vx = msg.linear.x;
+      cmd_vel_field.vy = msg.linear.y;
+      cmd_vel_field.wz = msg.angular.z;
+    }
+
     void timer1_callback()
     {
-      // 模拟不断变化的速度命令
-      ++cmd_count_;
 
-      fp64 t = cmd_count_ * 0.01;
-
-      uint32_t seq = static_cast<uint32_t>(cmd_count_);
-
-      fp32 vx = static_cast<fp32>(std::sin(t));
-      fp32 vy = static_cast<fp32>(std::cos(t));
-      fp32 wz = static_cast<fp32>(0.5 * std::sin(t));
-
-
-      RCLCPP_DEBUG(this->get_logger(),"[ROS] cmd_vel: seq=%u, vx=%.2f, vy=%.2f, wz=%.2f",seq,vx,vy,wz);
+      RCLCPP_INFO(this->get_logger(),"[ROS] cmd_vel: vx=%.2f, vy=%.2f, wz=%.2f",cmd_vel_field.vx,cmd_vel_field.vy,cmd_vel_field.wz);
       
       //--------------------------------------------------
       // 重点：
@@ -136,21 +139,16 @@ class Serial_Node: public rclcpp::Node
       // post给io_context。
       //--------------------------------------------------
       asio::post(io_context_,
-        [this,seq,vx,vy,wz]()->void
+        [this]()->void
               {
                 //这里是asio的线程
-
-                std::vector<std::int32_t> int32_vec;
-                int32_vec.push_back(std::bit_cast<std::int32_t>(seq));
-
                 std::vector<fp32> fp32_vec;
-                fp32_vec.push_back(vx);
-                fp32_vec.push_back(vy);
-                fp32_vec.push_back(wz);
+                fp32_vec.push_back(cmd_vel_field.vx);
+                fp32_vec.push_back(cmd_vel_field.vy);
+                fp32_vec.push_back(cmd_vel_field.wz);
 
                 wire_protocol::FieldSpans fields;
 
-                fields.int32s = int32_vec;
                 fields.float32s = fp32_vec;
 
                 const auto frame_size = wire_protocol::encoded_frame_size(fields);
@@ -535,8 +533,8 @@ class Serial_Node: public rclcpp::Node
     //======================================================
     rclcpp::TimerBase::SharedPtr timer1_;
     rclcpp::TimerBase::SharedPtr timer2_;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub1_;
 
-    uint64_t cmd_count_{0};
     int32_t mode_{0};
     uint32_t event_count_{0};
 
@@ -566,6 +564,13 @@ class Serial_Node: public rclcpp::Node
     //RX
     std::array<uint8_t, 1024> rx_buffer_{};
     wire_protocol::FrameParser parser_; //protocol解析器
+
+    struct 
+    {
+      fp32 vx;
+      fp32 vy;
+      fp32 wz;
+    }cmd_vel_field;
 
     //TX
     std::deque<std::vector<uint8_t>> send_queue_;

@@ -10,7 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(wire_protocol REQUIRED)
 find_path(ASIO_INCLUDE_DIR NAMES asio.hpp REQUIRED)
-
+find_package(geometry_msgs REQUIRED)
 
 add_executable(serial_driver src/serial_driver.cpp)
 target_include_directories(serial_driver PUBLIC
@@ -23,11 +23,15 @@ ament_target_dependencies(
   serial_driver
   "rclcpp"
   "wire_protocol"
+  "geometry_msgs"
 
 )
 
 install(TARGETS serial_driver
   DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY launch config
+  DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
