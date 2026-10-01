@@ -36,13 +36,10 @@ class Joy_Node: public rclcpp::Node
         wz < 0  → 顺时针旋转
         */
 
-        // cmd_vel_field.vx = msg.axes[1]; //左摇杆朝前是1.0
-        // cmd_vel_field.vy = msg.axes[0]; //左摇杆朝左是1.0
-        // cmd_vel_field.wz = msg.axes[3]; //右摇杆朝左是1.0
+        cmd_vel_field.vx = msg.axes[1]; //左摇杆朝前是1.0
+        cmd_vel_field.vy = msg.axes[0]; //左摇杆朝左是1.0
+        cmd_vel_field.wz = msg.axes[3]; //右摇杆朝左是1.0
 
-        cmd_vel_field.vx = - msg.axes[0]; //左摇杆朝右是1.0
-        cmd_vel_field.vy =   msg.axes[1]; //左摇杆朝前是1.0
-        cmd_vel_field.wz =   msg.axes[3]; //右摇杆朝左是1.0
     }
 
     void timer1_callback()
@@ -66,10 +63,10 @@ class Joy_Node: public rclcpp::Node
 
     struct
     {
-      fp32 vx;
-      fp32 vy;
-      fp32 wz;
-    }cmd_vel_field;
+        fp32 vx{0.0f};
+        fp32 vy{0.0f};
+        fp32 wz{0.0f};
+    } cmd_vel_field;
 };
 
 int main(int argc, char ** argv)
