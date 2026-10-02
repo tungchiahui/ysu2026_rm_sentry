@@ -12,6 +12,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(serial_transport REQUIRED)
 find_package(wire_protocol REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 add_executable(serial_comm src/serial_comm.cpp)
 target_include_directories(serial_comm PUBLIC
@@ -25,6 +26,7 @@ ament_target_dependencies(
   "sensor_msgs"
   "serial_transport"
   "wire_protocol"
+  "tf2_ros"
 )
 
 install(TARGETS serial_comm

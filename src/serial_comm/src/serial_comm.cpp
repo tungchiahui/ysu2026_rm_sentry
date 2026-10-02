@@ -1,12 +1,14 @@
 #include "rclcpp/rclcpp.hpp"
 #include "serial_transport/serial_transport.hpp"
 #include <rclcpp/publisher.hpp>
+#include <sensor_msgs/msg/detail/imu__struct.hpp>
 #include <sensor_msgs/msg/detail/joint_state__struct.hpp>
 #include <wire_protocol/protocol.hpp>
 #include "geometry_msgs/msg/twist.hpp"
+#include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include <functional>
-
+#include <tf2/LinearMath/Quaternion.h>
 
 
 using namespace std::chrono_literals;
@@ -49,6 +51,7 @@ class Serial_Node: public rclcpp::Node
       cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&Serial_Node::cmd_vel_sub_callback,this,std::placeholders::_1));
 
       joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("serial/gimbal_joint_state", 10);
+      imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("serial/imu", 10);
 
       // 创建两个定时器模拟两个 topic
       //模拟/cmd_vel这种高频消息
@@ -63,26 +66,50 @@ class Serial_Node: public rclcpp::Node
     {
       cmd_vel_field.vx = msg.linear.x;
       cmd_vel_field.vy = msg.linear.y;
-      cmd_vel_field.wz = msg.angular.z;
     }
 
-    void handle_joint_state(fp32 yaw,fp32 pitch)
+    void handle_joint_state(fp32 roll,fp32 pitch,fp32 yaw,fp32 joint_pitch,fp32 joint_yaw)
     {
-      sensor_msgs::msg::JointState msg;
+      //先搞时间戳
+      const auto stamp = this->now();
+
+      sensor_msgs::msg::JointState msg_jointstate;
+      sensor_msgs::msg::Imu msg_imu;
+
+      // 北极熊 IMU 的参考 frame
+      msg_imu.header.frame_id = "gimbal_pitch_odom";
 
       //优先级必须很高
-      msg.header.stamp = this->now();
+      msg_jointstate.header.stamp = stamp;
+      msg_imu.header.stamp = stamp;
 
-      msg.name[0] = "gimbal_yaw_joint";
-      msg.name[1] = "gimbal_pitch_joint";
+      msg_jointstate.name = {
+          "gimbal_pitch_joint",      // 小pitch
+          "gimbal_yaw_joint",        //小yaw
+          "gimbal_pitch_odom_joint",   //fixed
+          "gimbal_yaw_odom_joint"    //大yaw
+      };
 
-      msg.position[0] = yaw;
-      msg.position[1] = pitch;
+      msg_jointstate.position = {
+                      static_cast<fp64>(joint_pitch),   // 真实 pitch
+                      0.0,     // 不存在的小 yaw
+                      0.0,     // fixed
+                      static_cast<fp64>(joint_yaw)     // 真实 yaw
+      };
 
-      joint_state_pub_->publish(msg);
+      tf2::Quaternion q;
 
-      RCLCPP_DEBUG(this->get_logger(),"[RX gimbal_joint_state] yaw=%.3f pitch=%.3f",yaw,pitch);
-      
+      q.setRPY(static_cast<fp64>(roll), static_cast<fp64>(pitch), static_cast<fp64>(yaw));
+
+      msg_imu.orientation.x = q.x();
+      msg_imu.orientation.y = q.y();
+      msg_imu.orientation.z = q.z();
+      msg_imu.orientation.w = q.w();
+
+      joint_state_pub_->publish(msg_jointstate);
+      imu_pub_->publish(msg_imu);
+
+      RCLCPP_INFO(this->get_logger(),"[RX gimbal_joint_state] pitch=%.3f yaw=%.3f",pitch,yaw);
     }
 
 
@@ -94,7 +121,7 @@ class Serial_Node: public rclcpp::Node
 
     void timer1_callback()
     {
-      auto frame = protocol_.pack(0x01, cmd_vel_field.vx,cmd_vel_field.vy,cmd_vel_field.wz);
+      auto frame = protocol_.pack(0x01, cmd_vel_field.vx,cmd_vel_field.vy);
                 
       //异步发送数据
       serial_driver_.async_write(frame);
@@ -125,6 +152,7 @@ class Serial_Node: public rclcpp::Node
     rclcpp::TimerBase::SharedPtr timer2_;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
 
     //注意，protocol_一定要比serial_driver_早。
     // protocol_ 先构造、后析构；串口析构时先 stop() 并等待接收线程退出。
