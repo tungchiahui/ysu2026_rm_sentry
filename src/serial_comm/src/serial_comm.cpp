@@ -62,13 +62,14 @@ class Serial_Node: public rclcpp::Node
     }
 
   private:
+    //
     void cmd_vel_sub_callback(const geometry_msgs::msg::Twist &msg)
     {
       cmd_vel_field.vx = msg.linear.x;
       cmd_vel_field.vy = msg.linear.y;
     }
 
-    void handle_joint_state(fp32 roll,fp32 pitch,fp32 yaw,fp32 joint_pitch,fp32 joint_yaw)
+    void handle_joint_state(fp32 roll,fp32 pitch,fp32 yaw)
     {
       //先搞时间戳
       const auto stamp = this->now();
@@ -91,10 +92,12 @@ class Serial_Node: public rclcpp::Node
       };
 
       msg_jointstate.position = {
-                      static_cast<fp64>(joint_pitch),   // 真实 pitch
+                      static_cast<fp64>(pitch),   // 真实 pitch
+                      // static_cast<fp64>(joint_pitch),   // 真实 pitch
                       0.0,     // 不存在的小 yaw
                       0.0,     // fixed
-                      static_cast<fp64>(joint_yaw)     // 真实 yaw
+                      static_cast<fp64>(yaw)     // 真实 yaw
+                      // static_cast<fp64>(joint_yaw)     // 真实 yaw
       };
 
       tf2::Quaternion q;
@@ -109,7 +112,7 @@ class Serial_Node: public rclcpp::Node
       joint_state_pub_->publish(msg_jointstate);
       imu_pub_->publish(msg_imu);
 
-      RCLCPP_INFO(this->get_logger(),"[RX gimbal_joint_state] pitch=%.3f yaw=%.3f",pitch,yaw);
+      RCLCPP_INFO(this->get_logger(),"[RX gimbal_joint_state] roll = %.3f pitch=%.3f yaw=%.3f",roll,pitch,yaw);
     }
 
 
