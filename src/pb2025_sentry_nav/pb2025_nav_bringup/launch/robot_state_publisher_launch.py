@@ -30,7 +30,7 @@ from launch_ros.actions import PushRosNamespace, SetRemap
 def generate_launch_description():
     # Get the launch directory
     pkg_robot_description_dir = get_package_share_directory(
-        "ysu2026_robot_description"
+        "robot_description"
     )
 
     namespace = LaunchConfiguration("namespace")
@@ -52,7 +52,7 @@ def generate_launch_description():
 
     declare_robot_name_cmd = DeclareLaunchArgument(
         "robot_name",
-        default_value="ysu2026_sentry_robot",
+        default_value="reality_robot",
         description="The file name of the robot xmacro to be used",
     )
 

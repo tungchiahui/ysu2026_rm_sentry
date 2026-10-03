@@ -35,7 +35,7 @@ def generate_launch_description():
 
     pkg_simulator = get_package_share_directory("rmu_gazebo_simulator")
     pkg_robot_description = get_package_share_directory(
-        "ysu2026_robot_description"
+        "robot_description"
     )
 
     robot_xmacro_path = os.path.join(
