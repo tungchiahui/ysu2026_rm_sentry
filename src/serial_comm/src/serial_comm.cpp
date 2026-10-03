@@ -45,15 +45,17 @@ class Serial_Node: public rclcpp::Node
         return;
       }
 
-      //回调注册完毕后，再开启串口与异步接收
-      serial_driver_.start(serial_config_, std::bind(&Serial_Node::serial_receive_callback,this,std::placeholders::_1));
-
-      cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&Serial_Node::cmd_vel_sub_callback,this,std::placeholders::_1));
-
+      // 必须在串口开启前开启发布者，不然pub_对象可能会是空指针的时候就被串口回调使用
       joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("serial/gimbal_joint_state", 10);
       imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("serial/imu", 10);
 
-      // 创建两个定时器模拟两个 topic
+      //回调注册完毕后，再开启串口与异步接收
+      serial_driver_.start(serial_config_, std::bind(&Serial_Node::serial_receive_callback,this,std::placeholders::_1));
+
+      // 在串口开启前在后都可以
+      cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&Serial_Node::cmd_vel_sub_callback,this,std::placeholders::_1));
+
+      // 创建两个定时器模拟两个 topic（必须在串口开启后，尽量）
       //模拟/cmd_vel这种高频消息
       timer1_ = this->create_wall_timer(10ms,std::bind(&Serial_Node::timer1_callback,this));
       //模拟/set_mode这种低频消息
@@ -112,7 +114,7 @@ class Serial_Node: public rclcpp::Node
       joint_state_pub_->publish(msg_jointstate);
       imu_pub_->publish(msg_imu);
 
-      RCLCPP_INFO(this->get_logger(),"[RX gimbal_joint_state] roll = %.3f pitch=%.3f yaw=%.3f",roll,pitch,yaw);
+      RCLCPP_DEBUG(this->get_logger(),"[RX gimbal_joint_state] roll = %.3f pitch=%.3f yaw=%.3f",roll,pitch,yaw);
     }
 
 
