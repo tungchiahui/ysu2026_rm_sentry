@@ -17,7 +17,7 @@
         <link name="chassis">
             <inertial>
                 <pose>0 0 0.055 0 0 0</pose>
-                <xmacro_block name="inertia_box" m="15.0" x="0.36" y="0.24" z="0.13"/>
+                <xmacro_block name="inertia_box" m="15.0" x="0.525" y="0.525" z="0.20"/>
             </inertial>
             <visual name="chassis_visual">
                 <xmacro_block name="geometry_mesh" uri="model://rmua19_standard_robot/meshes/chassis_base.dae"/>
