@@ -14,7 +14,7 @@
 		<pose>0 0 0.15 0 0 0</pose>
 		<link name="base_footprint"/>
 		<joint name="base_to_chassis" type="fixed">
-			<pose>0 0 0.076 0 0 0</pose>
+			<pose>0 0 0.0625 0 0 0</pose>
 			<parent>base_footprint</parent>
 			<child>chassis</child>
 		</joint>
@@ -24,12 +24,12 @@
 				<pose>0 0 0.055 0 0 0</pose>
 				<mass>15.0</mass>
 				<inertia>
-					<ixx>0.093125</ixx>
+					<ixx>0.39453125000000006</ixx>
 					<ixy>0</ixy>
 					<ixz>0</ixz>
-					<iyy>0.18312499999999998</iyy>
+					<iyy>0.39453125000000006</iyy>
 					<iyz>0</iyz>
-					<izz>0.23399999999999999</izz>
+					<izz>0.6890625</izz>
 				</inertia>
 			</inertial>
 			<visual name="chassis_visual">
@@ -78,7 +78,7 @@
 		</link>
 		<!--front_left wheel link and joint-->
 		<joint name="front_left_wheel_joint" type="revolute">
-			<pose relative_to="chassis">0.207 0.194 0 0 0 0</pose>
+			<pose relative_to="chassis">0.162 0.162 0 0 0 0</pose>
 			<parent>chassis</parent>
 			<child>front_left_wheel</child>
 			<axis>
@@ -132,7 +132,7 @@
 		</link>
 		<!--front_right wheel link and joint-->
 		<joint name="front_right_wheel_joint" type="revolute">
-			<pose relative_to="chassis">0.207 -0.194 0 0 0 0</pose>
+			<pose relative_to="chassis">0.162 -0.162 0 0 0 0</pose>
 			<parent>chassis</parent>
 			<child>front_right_wheel</child>
 			<axis>
@@ -186,7 +186,7 @@
 		</link>
 		<!--rear_left wheel link and joint-->
 		<joint name="rear_left_wheel_joint" type="revolute">
-			<pose relative_to="chassis">-0.207 0.194 0 0 0 0</pose>
+			<pose relative_to="chassis">-0.162 0.162 0 0 0 0</pose>
 			<parent>chassis</parent>
 			<child>rear_left_wheel</child>
 			<axis>
@@ -240,7 +240,7 @@
 		</link>
 		<!--rear_right wheel link and joint-->
 		<joint name="rear_right_wheel_joint" type="revolute">
-			<pose relative_to="chassis">-0.207 -0.194 0 0 0 0</pose>
+			<pose relative_to="chassis">-0.162 -0.162 0 0 0 0</pose>
 			<parent>chassis</parent>
 			<child>rear_right_wheel</child>
 			<axis>
@@ -293,7 +293,7 @@
 			</collision>
 		</link>
 		<joint name="gimbal_yaw_odom_joint" type="revolute">
-			<pose relative_to="chassis">0 0 0.1376 0 0 0</pose>
+			<pose relative_to="chassis">0 0 0.21046 0 0 0</pose>
 			<parent>chassis</parent>
 			<child>gimbal_yaw_odom</child>
 			<axis>
@@ -310,7 +310,7 @@
 			<pose relative_to="gimbal_yaw_odom_joint">0 0 0 0 0 0</pose>
 		</link>
 		<joint name="gimbal_pitch_odom_joint" type="fixed">
-			<pose relative_to="gimbal_yaw_odom">0 0 0.16 0 0 0</pose>
+			<pose relative_to="gimbal_yaw_odom">0 0 0.09641 0 0 0</pose>
 			<parent>gimbal_yaw_odom</parent>
 			<child>gimbal_pitch_odom</child>
 			<axis>
@@ -328,7 +328,7 @@
 		</link>
 		<!--gimbal yaw module-->
 		<joint name="gimbal_yaw_joint" type="revolute">
-			<pose relative_to="gimbal_pitch_odom">0 0 -0.16 0 0 0</pose>
+			<pose relative_to="gimbal_pitch_odom">0 0 -0.09641 0 0 0</pose>
 			<parent>gimbal_pitch_odom</parent>
 			<child>gimbal_yaw</child>
 			<axis>
@@ -373,7 +373,7 @@
 		</link>
 		<!--gimbal pitch module-->
 		<joint name="gimbal_pitch_joint" type="revolute">
-			<pose relative_to="gimbal_yaw">0 0 0.16 0 0 0</pose>
+			<pose relative_to="gimbal_yaw">0 0 0.09641 0 0 0</pose>
 			<parent>gimbal_yaw</parent>
 			<child>gimbal_pitch</child>
 			<axis>
