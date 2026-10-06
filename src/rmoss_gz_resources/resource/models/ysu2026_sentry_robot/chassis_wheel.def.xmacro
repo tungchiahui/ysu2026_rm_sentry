@@ -62,14 +62,14 @@
             <pose relative_to="${prefix}_wheel_joint">0 0 0 0 0 0</pose>
             <inertial>
                 <pose>0 0 0 1.5707 0 0</pose>
-                <xmacro_block name="inertia_cylinder"  m="0.4" r="0.0758" l="0.0452"/>
+                <xmacro_block name="inertia_cylinder"  m="0.4" r="0.0625" l="0.0452"/>
             </inertial>
             <visual name="${prefix}_wheel_visual">
                 <xmacro_block name="geometry_mesh" uri="model://rmua19_standard_robot/meshes/wheel_right.dae"/>
             </visual>
             <collision name="${prefix}_wheel_collision">
                 <pose>0 0 0 1.5707 0 0</pose>
-                <xmacro_block name="geometry_cylinder" r="0.0758" l="0.0452"/>
+                <xmacro_block name="geometry_cylinder" r="0.0625" l="0.0452"/>
                 <surface>
                     <friction>
                         <ode>
