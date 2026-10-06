@@ -4,7 +4,7 @@
     <xmacro_include uri="model://rm21_armor_module/rm21_armor_module.def.xmacro" />
     <xmacro_include uri="model://rm21_light_indicator_module/rm21_light_indicator_module.def.xmacro" />
     <xmacro_include uri="model://rm21_speed_monitor_module/rm21_speed_monitor_module.def.xmacro" />
-    <xmacro_include uri="model://rmua19_standard_robot/chassis_wheel.def.xmacro" />
+    <xmacro_include uri="model://ysu2026_sentry_robot/chassis_wheel.def.xmacro" />
     <!--macro defination: ysu2026_sentry_robot-->
     <xmacro_define_block name="ysu2026_sentry_robot" params="sticker_type chassis_height gimbal_pitch_height gimbal_yaw_height">
         <link name="base_footprint"/>
@@ -24,9 +24,9 @@
             </visual>
             <collision name="chassis_base_collision">
                 <pose>0 0 0.045 0 0 0</pose>
-                <xmacro_block name="geometry_box" x="0.36" y="0.24" z="0.13"/>
+                <xmacro_block name="geometry_box" x="0.525" y="0.525" z="0.20"/>
             </collision>
-            <collision name="chassis_projectile_container_collision">
+            <!-- <collision name="chassis_projectile_container_collision">
                 <pose>-0.122 0 0.177 0 0 0</pose>
                 <xmacro_block name="geometry_box" x="0.1" y="0.18" z="0.146"/>
             </collision>
@@ -37,7 +37,7 @@
             <collision name="chassis_rear_wheel_holder_collision">
                 <pose>-0.208 0 0 0 0 0</pose>
                 <xmacro_block name="geometry_box" x="0.055" y="0.367" z="0.055"/>
-            </collision>
+            </collision> -->
             <sensor name="chassis_imu" type="imu">
                 <always_on>1</always_on>
                 <update_rate>200</update_rate>
