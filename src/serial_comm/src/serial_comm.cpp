@@ -67,11 +67,13 @@ class Serial_Node: public rclcpp::Node
     //
     void cmd_vel_sub_callback(const geometry_msgs::msg::Twist &msg)
     {
+      // 相对于云台的线速度、线速度和角速度，单位都是 m/s 和 rad/s 分别
       cmd_vel_field.vx = msg.linear.x;
       cmd_vel_field.vy = msg.linear.y;
+      cmd_vel_field.wz = msg.angular.z; //含自旋的角速度wz_spin了，再加上wz_nav2,这里的是wz_final
     }
 
-    void handle_joint_state(fp32 roll,fp32 pitch,fp32 yaw)
+    void handle_joint_state(fp32 abs_roll,fp32 abs_pitch,fp32 abs_yaw,fp32 rel_pitch,fp32 rel_yaw)
     {
       //先搞时间戳
       const auto stamp = this->now();
@@ -94,17 +96,15 @@ class Serial_Node: public rclcpp::Node
       };
 
       msg_jointstate.position = {
-                      static_cast<fp64>(pitch),   // 真实 pitch
-                      // static_cast<fp64>(joint_pitch),   // 真实 pitch
-                      0.0,     // 不存在的小 yaw
-                      0.0,     // fixed
-                      static_cast<fp64>(yaw)     // 真实 yaw
-                      // static_cast<fp64>(joint_yaw)     // 真实 yaw
+                static_cast<fp64>(rel_pitch),  // 唯一机械 pitch
+                static_cast<fp64>(rel_yaw),    // 唯一机械 yaw
+                0.0,                          // 固定层
+                0.0                           // 固定层
       };
 
       tf2::Quaternion q;
 
-      q.setRPY(static_cast<fp64>(roll), static_cast<fp64>(pitch), static_cast<fp64>(yaw));
+      q.setRPY(static_cast<fp64>(abs_roll), static_cast<fp64>(abs_pitch), static_cast<fp64>(abs_yaw));
 
       msg_imu.orientation.x = q.x();
       msg_imu.orientation.y = q.y();
@@ -114,7 +114,7 @@ class Serial_Node: public rclcpp::Node
       joint_state_pub_->publish(msg_jointstate);
       imu_pub_->publish(msg_imu);
 
-      RCLCPP_DEBUG(this->get_logger(),"[RX gimbal_joint_state] roll = %.3f pitch=%.3f yaw=%.3f",roll,pitch,yaw);
+      RCLCPP_DEBUG(this->get_logger(),"[RX gimbal_joint_state] pitch=%.3f yaw=%.3f",rel_pitch,rel_yaw);
     }
 
 
@@ -126,7 +126,7 @@ class Serial_Node: public rclcpp::Node
 
     void timer1_callback()
     {
-      auto frame = protocol_.pack(0x01, cmd_vel_field.vx,cmd_vel_field.vy);
+      auto frame = protocol_.pack(0x01, cmd_vel_field.vx,cmd_vel_field.vy,cmd_vel_field.wz);
                 
       //异步发送数据
       serial_driver_.async_write(frame);
@@ -173,7 +173,7 @@ class Serial_Node: public rclcpp::Node
       fp32 vx;
       fp32 vy;
       fp32 wz;
-    }cmd_vel_field;
+    }cmd_vel_field{0.0,0.0,0.0};
 
     //模拟数据
     int32_t mode_{0};
