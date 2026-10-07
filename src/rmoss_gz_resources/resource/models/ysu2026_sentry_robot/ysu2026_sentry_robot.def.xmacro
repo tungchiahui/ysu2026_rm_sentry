@@ -23,7 +23,7 @@
                 <xmacro_block name="geometry_mesh" uri="model://rmua19_standard_robot/meshes/chassis_base.dae"/>
             </visual>
             <collision name="chassis_base_collision">
-                <pose>0 0 0.045 0 0 0</pose>
+                <pose>0 0 0.06546 0 0 0</pose>
                 <xmacro_block name="geometry_box" x="0.525" y="0.525" z="0.20"/>
             </collision>
             <!-- <collision name="chassis_projectile_container_collision">
