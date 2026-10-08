@@ -30,10 +30,11 @@ def generate_launch_description():
         package="joy_bringup",
         executable="joy_bringup",
         name="joy_node_cpp",
+        namespace=robot_name,
         output="screen",
 
         remappings=[
-            ("cmd_vel", ["/", robot_name, "/cmd_vel"]),
+            ("joy", "/joy"),
         ],
     )
 
@@ -46,6 +47,6 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(joy_launch_file),
         ),
 
-        # /joy -> your controller -> /red_standard_robot1/cmd_vel
+        # /joy -> controller -> robot namespace chassis and gimbal commands
         joy_controller_node,
     ])
