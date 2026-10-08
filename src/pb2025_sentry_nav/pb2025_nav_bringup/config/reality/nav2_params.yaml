@@ -64,9 +64,9 @@ point_lio:
       plane_thr: 0.1                                    # 0.05, the threshold for plane criteria, the smaller, the flatter a plane
       match_s: 81.0
       ivox_grid_resolution: 0.5
-      # 测量平均值是[0.00423894,0.71588876,0.69592434]经过公式计算得出[-0.00425, -0.71703, -0.69703]
-      gravity: [-0.00425, -0.71703, -0.69703]        # gravity to be aligned # rpy = [0, pi/6, 0]
-      gravity_init: [-0.00425, -0.71703, -0.69703]   # preknown gravity in the first IMU body frame, use when imu_en is False or start from a non-stationary state
+      # 测量平均值是[0.00423894,0.71588876,0.69592434]经过公式计算得出[-0.04166067, -7.03407005, -6.83785222]
+      gravity: [-0.04166067, -7.03407005, -6.83785222]        # gravity to be aligned # rpy = [0, pi/6, 0]
+      gravity_init: [-0.04166067, -7.03407005, -6.83785222]   # preknown gravity in the first IMU body frame, use when imu_en is False or start from a non-stationary state
       extrinsic_T: [ -0.011, -0.02329, 0.04412 ]
       extrinsic_R: [ 1.0, 0.0, 0.0,
                      0.0, 1.0, 0.0,
@@ -79,7 +79,7 @@ point_lio:
       path_en: False                                    # False: close the path output
       scan_publish_en: True                             # False: close all the point cloud output
       scan_bodyframe_pub_en: False                      # True: output the point cloud scans in IMU-body-frame
-      tf_send_en: False                                 # True: send transform from 'camera_init' to 'aft_mapped'
+      tf_send_en: False                                  # True: send transform from 'camera_init' to 'aft_mapped'
 
     pcd_save:
       pcd_save_en: False
