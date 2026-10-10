@@ -32,7 +32,9 @@ def generate_launch_description():
         name="joy_node_cpp",
         namespace=robot_name,
         output="screen",
-
+        parameters=[
+            {"use_sim_time": True},
+        ],
         remappings=[
             ("joy", "/joy"),
         ],
