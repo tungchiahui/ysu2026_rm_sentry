@@ -10,6 +10,10 @@
 #include "sensor_msgs/msg/joy.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 
+// 先用保守的软限位，避免碰到模型的机械限位
+static constexpr fp32 PITCH_MIN = -0.60f;
+static constexpr fp32 PITCH_MAX =  0.45f;
+
 using namespace std::chrono_literals;
 
 class Joy_Node: public rclcpp::Node
@@ -164,10 +168,6 @@ class Joy_Node: public rclcpp::Node
     } cmd_gimbal_joint_field;
 
     rclcpp::Time last_update_;
-
-    // 先用保守的软限位，避免碰到模型的机械限位
-    static constexpr fp32 PITCH_MIN = -0.60f;
-    static constexpr fp32 PITCH_MAX =  0.45f;
 
     bool received_joy_{false};
     std::chrono::steady_clock::time_point last_joy_time_{std::chrono::steady_clock::now()};
