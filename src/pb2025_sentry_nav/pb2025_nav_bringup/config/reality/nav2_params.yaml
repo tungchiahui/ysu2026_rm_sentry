@@ -65,8 +65,8 @@ point_lio:
       match_s: 81.0
       ivox_grid_resolution: 0.5
       # 测量平均值是[0.00423894,0.71588876,0.69592434]经过公式计算得出[-0.04166067, -7.03407005, -6.83785222]
-      gravity: [-0.04166067, -7.03407005, -6.83785222]        # gravity to be aligned # rpy = [0, pi/6, 0]
-      gravity_init: [-0.04166067, -7.03407005, -6.83785222]   # preknown gravity in the first IMU body frame, use when imu_en is False or start from a non-stationary state
+      gravity: [0.0582, 7.0014, -6.8712]        # gravity to be aligned # rpy = [0, pi/6, 0]
+      gravity_init: [0.0582, 7.0014, -6.8712]   # preknown gravity in the first IMU body frame, use when imu_en is False or start from a non-stationary state
       extrinsic_T: [ -0.011, -0.02329, 0.04412 ]
       extrinsic_R: [ 1.0, 0.0, 0.0,
                      0.0, 1.0, 0.0,
