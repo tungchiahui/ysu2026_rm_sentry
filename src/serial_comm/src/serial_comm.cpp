@@ -20,8 +20,8 @@ static constexpr fp32 PITCH_MIN = -0.56f;
 static constexpr fp32 PITCH_MAX =  0.56f;
 
 // 限制速度
-constexpr fp64 MAX_LINEAR_SPEED = 0.20;   // m/s，平移合速度
-constexpr fp64 MAX_ANGULAR_SPEED = 0.20;  // rad/s，底盘角速度
+constexpr fp64 MAX_LINEAR_SPEED = 3.0;   // m/s，平移合速度
+constexpr fp64 MAX_ANGULAR_SPEED = 3.0;  // rad/s，底盘角速度
 
 
 using namespace std::chrono_literals;
