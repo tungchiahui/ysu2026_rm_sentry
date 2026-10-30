@@ -74,6 +74,11 @@ def generate_launch_description():
                     "use_sim_time": use_sim_time,
                     "robot_name": robot_name,
                     "use_rviz": "False",
+                    "params_file": os.path.join(
+                    pkg_robot_description_dir,
+                    "params",
+                    "robot_description.yaml",
+                    ),
                 }.items(),
             ),
         ]
