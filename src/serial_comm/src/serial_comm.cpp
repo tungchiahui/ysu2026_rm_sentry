@@ -16,8 +16,8 @@
 #include <limits>
 
 // pitch 软限位
-static constexpr fp32 PITCH_MIN = -0.56f;
-static constexpr fp32 PITCH_MAX =  0.56f;
+static constexpr fp32 PITCH_MIN = -0.47f;
+static constexpr fp32 PITCH_MAX =  0.47f;
 
 // 限制速度
 constexpr fp64 MAX_LINEAR_SPEED = 3.0;   // m/s，平移合速度

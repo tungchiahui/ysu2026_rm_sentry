@@ -10,15 +10,20 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(nav2_msgs REQUIRED)
+find_package(behaviortree_cpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(behaviortree_cpp REQUIRED)
+find_package(example_interfaces REQUIRED)
 
 add_executable(behavior_manager_node
   src/behavior_manager_node.cpp)
 
 add_executable(gimbal_scan_server
   src/servers/gimbal_scan_server.cpp
+)
+
+add_executable(chassis_spin_server
+  src/servers/chassis_spin_server.cpp
 )
 
 target_include_directories(behavior_manager_node PUBLIC
@@ -29,8 +34,13 @@ target_include_directories(gimbal_scan_server PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+target_include_directories(chassis_spin_server PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
 target_compile_features(behavior_manager_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 target_compile_features(gimbal_scan_server PUBLIC c_std_99 cxx_std_17)
+target_compile_features(chassis_spin_server PUBLIC c_std_99 cxx_std_17)
 
 ament_target_dependencies(
   behavior_manager_node
@@ -48,6 +58,12 @@ ament_target_dependencies(
   sensor_msgs
 )
 
+ament_target_dependencies(
+  chassis_spin_server
+  rclcpp
+  example_interfaces
+)
+
 install(
   DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
@@ -57,6 +73,10 @@ install(TARGETS behavior_manager_node
   DESTINATION lib/${PROJECT_NAME})
 
 install(TARGETS gimbal_scan_server
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(TARGETS chassis_spin_server
   DESTINATION lib/${PROJECT_NAME}
 )
 
