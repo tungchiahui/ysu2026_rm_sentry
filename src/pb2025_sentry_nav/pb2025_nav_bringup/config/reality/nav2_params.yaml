@@ -336,8 +336,8 @@ controller_server:
     odom_topic: odometry
     controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
-    # min_y_velocity_threshold: 0.5
-    min_y_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    # min_y_velocity_threshold: 0.001
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     progress_checker_plugins: ["progress_checker"]
