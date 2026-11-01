@@ -65,8 +65,8 @@ point_lio:
       match_s: 81.0
       ivox_grid_resolution: 0.5
       # 测量平均值是[0.00423894,0.71588876,0.69592434]经过公式计算得出[-0.04166067, -7.03407005, -6.83785222]
-      gravity: [-0.20841407, 7.01274752, -6.85667819]        # gravity to be aligned # rpy = [0, pi/6, 0]
-      gravity_init: [-0.20841407, 7.01274752, -6.85667819]   # preknown gravity in the first IMU body frame, use when imu_en is False or start from a non-stationary state
+      gravity: [0.0582, 7.0014, -6.8712]        # gravity to be aligned # rpy = [0, pi/6, 0]
+      gravity_init: [0.0582, 7.0014, -6.8712]   # preknown gravity in the first IMU body frame, use when imu_en is False or start from a non-stationary state
       extrinsic_T: [ -0.011, -0.02329, 0.04412 ]
       extrinsic_R: [ 1.0, 0.0, 0.0,
                      0.0, 1.0, 0.0,
@@ -336,8 +336,8 @@ controller_server:
     odom_topic: odometry
     controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
-    min_y_velocity_threshold: 0.5
-    # min_y_velocity_threshold: 0.001
+    # min_y_velocity_threshold: 0.5
+    min_y_velocity_threshold: 0.01
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     progress_checker_plugins: ["progress_checker"]
@@ -371,13 +371,13 @@ controller_server:
       use_interpolation: false
       use_rotate_to_heading: false
       use_rotate_to_heading_treshold: 0.1
-      min_approach_linear_velocity: 0.5
-      # min_approach_linear_velocity: 0.03
+      # min_approach_linear_velocity: 0.5
+      min_approach_linear_velocity: 0.03
       approach_velocity_scaling_dist: 1.0
       # v_linear_min: -2.5
       # v_linear_max: 2.5
-      v_linear_min: -1.5
-      v_linear_max: 1.5
+      v_linear_min: -2.0
+      v_linear_max: 2.0
       v_angular_min: -3.0
       v_angular_max: 3.0
       curvature_min: 0.4                                # 低曲率阈值，低于此值不减速。
@@ -575,8 +575,8 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
     # max_velocity: [2.5, 2.5, 3.0]
     # min_velocity: [-2.5, -2.5, -3.0]
-    max_velocity: [1.5, 1.5, 3.0]
-    min_velocity: [-1.5, -1.5, -3.0]
+    max_velocity: [2.0, 2.0, 3.0]
+    min_velocity: [-2.0, -2.0, -3.0]
     max_accel: [4.5, 4.5, 5.0]
     max_decel: [-4.5, -4.5, -5.0]
     # max_accel: [0.15, 0.15, 0.3]
