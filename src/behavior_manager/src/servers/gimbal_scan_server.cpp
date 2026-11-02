@@ -19,7 +19,7 @@ static constexpr fp32 MAX_PITCH_SPEED = 1.0f;
 
 // 云台扫描速度 单位：rad/s
 static constexpr fp32 YAW_SCAN_SPEED = 3.14f;
-static constexpr fp32 PITCH_SCAN_SPEED = 0.3f;
+static constexpr fp32 PITCH_SCAN_SPEED = 0.0f;
 
 using namespace std::chrono_literals;
 
