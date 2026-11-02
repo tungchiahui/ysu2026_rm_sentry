@@ -11,6 +11,8 @@
             <ReactiveSequence>
               <RemovePassedGoals input_goals="{goals}"
                                  output_goals="{goals}"
+                                 global_frame="map"
+                                 robot_base_frame="gimbal_yaw_fake"
                                  radius="0.7"/>
               <ComputePathThroughPoses goals="{goals}"
                                        path="{path}"
