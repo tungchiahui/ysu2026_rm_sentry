@@ -1,0 +1,13 @@
+# Goal：任务参数
+float32 spin_speed
+float32 duration
+
+---
+# Result：任务结束结果
+bool success
+string message
+
+---
+# Feedback：执行进度
+float32 commanded_speed
+float32 elapsed_time
