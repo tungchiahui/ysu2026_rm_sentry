@@ -1,4 +1,0 @@
-/lifecycle_manager_slam:
-  ros__parameters:
-    node_names: !!python/tuple
-    - map_saver

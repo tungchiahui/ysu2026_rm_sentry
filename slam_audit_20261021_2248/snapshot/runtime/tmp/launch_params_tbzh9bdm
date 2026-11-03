@@ -1,3 +1,0 @@
-/nav2_container:
-  ros__parameters:
-    autostart: true
