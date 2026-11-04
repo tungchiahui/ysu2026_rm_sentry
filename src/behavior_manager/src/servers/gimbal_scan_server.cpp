@@ -21,7 +21,7 @@ static constexpr fp32 MAX_PITCH_SPEED = 1.0f;
 
 // 云台扫描速度 单位：rad/s
 // 当前 pitch 速度为零，保持其初始位置；配置为非零扫描速度时才会进行俯仰往返。
-static constexpr fp32 YAW_SCAN_SPEED = 0.0f;
+static constexpr fp32 YAW_SCAN_SPEED = 1.0f;
 static constexpr fp32 PITCH_SCAN_SPEED = 0.0f;
 
 using namespace std::chrono_literals;
