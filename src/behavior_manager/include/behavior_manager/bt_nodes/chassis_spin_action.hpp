@@ -32,9 +32,7 @@ public:
     // 定义这个 BT 节点可以从 XML 接收的参数
     static BT::PortsList providedPorts()
     {
-        return {
-            BT::InputPort<float>("spin_speed", "自旋速度，单位 rad/s")
-        };
+        return {BT::InputPort<float>("spin_speed", "自旋速度，单位 rad/s")};
     }
 
     // 入口启动时，等待服务端被发现

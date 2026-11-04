@@ -2,7 +2,7 @@
 <root BTCPP_format="4" main_tree_to_execute="SpinTest">
     <BehaviorTree ID="SpinTest">
         <Parallel success_count="1" failure_count="1">
-            <Sleep msec="60000"/>
+            <Sleep msec="600000"/>
             <ChassisSpin spin_speed="1.0"/>
         </Parallel>
     </BehaviorTree>
