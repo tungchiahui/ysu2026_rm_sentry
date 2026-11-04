@@ -16,6 +16,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(example_interfaces REQUIRED)
 find_package(action_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/ChassisSpin.action"
@@ -44,9 +45,10 @@ target_include_directories(chassis_spin_server PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-target_compile_features(behavior_manager_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-target_compile_features(gimbal_scan_server PUBLIC c_std_99 cxx_std_17)
-target_compile_features(chassis_spin_server PUBLIC c_std_99 cxx_std_17)
+# Require C99 and C++20，因为要用jthread,span等特性
+target_compile_features(behavior_manager_node PUBLIC c_std_99 cxx_std_20)
+target_compile_features(gimbal_scan_server PUBLIC c_std_99 cxx_std_20)
+target_compile_features(chassis_spin_server PUBLIC c_std_99 cxx_std_20)
 
 ament_target_dependencies(
   behavior_manager_node
@@ -56,6 +58,7 @@ ament_target_dependencies(
   "geometry_msgs"
   "sensor_msgs"
   "behaviortree_cpp"
+  "ament_index_cpp"
 )
 
 ament_target_dependencies(
@@ -67,11 +70,28 @@ ament_target_dependencies(
 ament_target_dependencies(
   chassis_spin_server
   rclcpp
+  rclcpp_action
   example_interfaces
 )
 
+rosidl_get_typesupport_target(
+  cpp_typesupport_target
+  ${PROJECT_NAME}
+  "rosidl_typesupport_cpp"
+)
+
+target_link_libraries(
+  chassis_spin_server
+  "${cpp_typesupport_target}"
+)
+
+target_link_libraries(
+  behavior_manager_node
+  "${cpp_typesupport_target}"
+)
+
 install(
-  DIRECTORY launch
+  DIRECTORY launch behavior_trees
   DESTINATION share/${PROJECT_NAME}
 )
 

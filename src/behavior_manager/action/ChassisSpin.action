@@ -1,6 +1,5 @@
 # Goal：任务参数
 float32 spin_speed
-float32 duration
 
 ---
 # Result：任务结束结果
