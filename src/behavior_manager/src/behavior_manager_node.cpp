@@ -1,3 +1,5 @@
+// 行为树入口：加载 XML、注册叶子节点、驱动 tick，并等待远端任务完成退出收尾。
+// ROS 用户回调与 BT tick 在本线程中按序执行，自旋的持续发布由服务端工作线程负责。
 #include <chrono>
 #include <thread>
 #include <string>
@@ -23,10 +25,11 @@ int main(int argc, char **argv)
 
     try
     {
-        // 查找本包安装后的 share 目录
+        // 查找本包安装后的 share 目录，与当前终端的工作目录无关。
         const auto package_share = ament_index_cpp::get_package_share_directory("behavior_manager");
 
-        // 不传参数时，默认加载本包安装的测试树
+        // 不传参数时加载安装目录中的测试树；bt_xml_file 可指定其他 XML 路径。
+        // 若安装文件是副本，源码 XML 修改后需重新安装，也可用参数直接加载源码文件。
         const auto bt_xml_file = node->declare_parameter<std::string>("bt_xml_file",package_share + "/behavior_trees/spin_test.xml");
 
         RCLCPP_INFO(node->get_logger(),"加载行为树文件：%s",bt_xml_file.c_str());
@@ -41,7 +44,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // 查找整棵树中的自旋叶子，不要求它位于根节点
+    // 查找所有子树中的自旋叶子，允许根节点是 Parallel、Sequence 等控制节点。
+    // 指针指向 tree 拥有的节点，只在本棵树存活期间使用，不在这里释放节点。
     std::vector<ChassisSpinAction *> spin_bt_nodes;
 
     for (const auto &subtree : tree.subtrees)
@@ -58,7 +62,7 @@ int main(int argc, char **argv)
         }
     }
 
-    // 执行树之前，等待这些节点对应的服务端
+    // 执行树之前等待服务端被发现；5s 是通信发现上限，与自旋持续时间无关。
     for (auto *spin_bt_node : spin_bt_nodes)
     {
         if (!spin_bt_node->waitForServer(5s))
@@ -69,7 +73,8 @@ int main(int argc, char **argv)
         }
     }
 
-    // 退出收尾时，检查所有自旋任务是否结束
+    // 当前只检查自旋叶子的通信收尾；未发起任务的节点也视为无需等待。
+    // finished 表示请求已结束或无需继续等待，不表示任务成功或实车速度已经为零。
     const auto all_tasks_finished = [&spin_bt_nodes]()
     {
         for (const auto *spin_bt_node : spin_bt_nodes)
@@ -91,6 +96,8 @@ int main(int argc, char **argv)
     // 执行多久，由树本身决定
     while (rclcpp::ok())
     {
+        // spin_all 在 5ms 预算内反复收集就绪事件，及时消费 Action 反馈与各类答复。
+        // 先处理 ROS 回调，再让 BT 检查 future；5ms 是处理预算，不是固定休眠时间。
         executor.spin_all(5ms);
 
         status = tree.tickOnce();
@@ -100,14 +107,17 @@ int main(int argc, char **argv)
             break;
         }
 
+        // 控制 tick 的轮询节奏；加上回调与 tick 耗时后，并非严格的 50Hz。
         std::this_thread::sleep_for(20ms);
     }
 
-    // ROS 通信仍然有效时，停止树并触发 onHalted()
+    // 停止仍在运行的叶子，触发 onHalted()；控制节点也可能已在返回前停止了子节点。
+    // 取消通信需要 ROS 上下文仍然有效；默认 Ctrl+C 关闭 ROS 后无法继续此通信流程。
     RCLCPP_INFO(node->get_logger(), "行为树执行结束，开始任务收尾");
     tree.haltTree();
 
-    // 停止 tick 后，继续处理取消答复和最终结果
+    // 树结束或 haltTree() 返回，不代表远端 Action 已结束；停止 tick 后仍需处理 ROS 回调。
+    // 使用单调时钟限制收尾等待，避免 ROS 时间暂停或回跳影响这个 3s 通信等待上限。
     const auto finish_deadline = std::chrono::steady_clock::now() + 3s;
 
     while (rclcpp::ok()

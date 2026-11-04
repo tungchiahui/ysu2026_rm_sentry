@@ -1,3 +1,5 @@
+// 云台扫描节点：用定时器积分生成绝对位置角度，首次有效反馈用于初始化目标位置。
+// yaw 保留多圈角度；启用 pitch 扫描时在软限位内往返，角度单位为 rad，速度单位为 rad/s。
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "behavior_manager/struct_typedef.h"
@@ -18,13 +20,14 @@ static constexpr fp32 MAX_YAW_SPEED = 10.0f;
 static constexpr fp32 MAX_PITCH_SPEED = 1.0f;
 
 // 云台扫描速度 单位：rad/s
+// 当前 pitch 速度为零，保持其初始位置；配置为非零扫描速度时才会进行俯仰往返。
 static constexpr fp32 YAW_SCAN_SPEED = 3.14f;
 static constexpr fp32 PITCH_SCAN_SPEED = 0.0f;
 
 using namespace std::chrono_literals;
 
 // 按关节名读取角度，不要求 pitch、yaw 的排列顺序
-// 仿真里他也做了这种处理，但是你从仿真里读取关节角度却定死了先 yaw 后 pitch,所以这里读角度要做自适应读取角度
+// 按名称匹配两个目标关节，避免真实反馈与仿真反馈的关节排列不同而读错角度。
 static bool read_gimbal_position(
     const sensor_msgs::msg::JointState &msg,
     fp64 &pitch_position,
@@ -94,7 +97,7 @@ class Gimbal_Scan_Node: public rclcpp::Node
 
   private:
 
-    // 停止推进目标角度，保留已有目标位置
+    // 仅清零内部积分速度，保留已有目标角度；目标有效时，定时器仍会发布保持位置的命令。
     void stop_input()
     {
         cmd_gimbal_joint_field.yaw_vel = 0.0f;
@@ -134,7 +137,7 @@ class Gimbal_Scan_Node: public rclcpp::Node
             // 先用固定速度演示，后面再改成扫描任务参数
             cmd_gimbal_joint_field.yaw_vel = YAW_SCAN_SPEED;
             cmd_gimbal_joint_field.pitch_vel =
-                cmd_gimbal_joint_field.pitch >= PITCH_MAX ? //初始位置低着头，扫描时上移
+                cmd_gimbal_joint_field.pitch >= PITCH_MAX ? // 上限处反转初始扫描方向
                 -PITCH_SCAN_SPEED : PITCH_SCAN_SPEED;
 
             last_update_ = this->now();
@@ -150,7 +153,7 @@ class Gimbal_Scan_Node: public rclcpp::Node
     {
         auto now = this->now();
 
-        // 积分时间间隔
+        // 积分使用节点的 ROS 时间；暂停、回跳或异常跨度由后面的 dt 条件处理。
         fp32 dt = (now - last_update_).seconds();
         last_update_ = now;
 
@@ -160,7 +163,7 @@ class Gimbal_Scan_Node: public rclcpp::Node
             return;
         }
 
-        // 断流检查
+        // 反馈新鲜度使用单调时钟，不受 ROS 时间暂停或回跳影响。
         std::chrono::steady_clock::time_point steady_now = std::chrono::steady_clock::now();
 
         bool joint_state_fresh =
@@ -170,6 +173,7 @@ class Gimbal_Scan_Node: public rclcpp::Node
 
         if (!joint_state_fresh)
         {
+            // 反馈超时停止推进目标，但不直接停止发布仍有效的目标位置。
             stop_input();
 
             if (!scan_fault_)
@@ -211,7 +215,7 @@ class Gimbal_Scan_Node: public rclcpp::Node
                 MAX_PITCH_SPEED
             );
 
-            // 多圈Yaw
+            // 直接累积多圈绝对 yaw，不折返或归一化到 [-pi, pi]。
             cmd_gimbal_joint_field.yaw +=
                 cmd_gimbal_joint_field.yaw_vel * dt;
 
@@ -253,6 +257,7 @@ class Gimbal_Scan_Node: public rclcpp::Node
             PITCH_MAX
         );
 
+        // 对外发送绝对位置目标；yaw_vel、pitch_vel 只用于本节点积分，不作为速度字段发送。
         auto joint_state_msg = sensor_msgs::msg::JointState();
 
         joint_state_msg.header.stamp = now;
@@ -285,7 +290,7 @@ class Gimbal_Scan_Node: public rclcpp::Node
 
     rclcpp::Time last_update_;
 
-    // 云台反馈断流处理
+    // 首次有效反馈后才允许推进目标；scan_fault_ 为锁存故障，反馈恢复不会自动清除它。
     bool received_joint_state_{false};
     bool scan_fault_{false};
 
